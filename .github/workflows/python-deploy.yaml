@@ -30,8 +30,8 @@ jobs:
 
       - name: Package app # copies contents to package dir
         run: |
-          mkdir package
-          cp -r app main.py requirements.txt package/
+          mkdir -p package
+          cp -r main.py requirements.txt package/
 
       - name: Upload artifact # uploads build artifact to next job
         uses: actions/upload-artifact@v4
