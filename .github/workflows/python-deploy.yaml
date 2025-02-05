@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install --target="./.python_packages/lib/site-packages" -r requirements.txt
 
       # will add test support later
       # - name: Run tests
