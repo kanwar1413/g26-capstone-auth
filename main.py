@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from keyvault import CapstoneKeyVault
 from dotenv import load_dotenv
 from database import get_connection
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -27,6 +28,19 @@ except Exception as e:
 
 
 app = FastAPI()
+
+allowed_origins = [
+    "http://localhost:5173",  # Local React URL
+    "https://g26-capstone-front-end-dcdfabdfhkakegcq.canadacentral-01.azurewebsites.net/"  # Production React URL on Azure
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,  # Allow these origins
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],  # Allow these HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 @app.get("/")
