@@ -3,3 +3,6 @@ uvicorn
 pyodbc
 python-dotenv
 pytest
+azure-identity
+azure-keyvault-secrets
+azure-keyvault-keys
