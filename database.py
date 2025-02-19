@@ -5,15 +5,11 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Get Azure SQL credentials from .env
-server = os.getenv("AZURE_SQL_SERVER")
-database = os.getenv("AZURE_SQL_DATABASE")
-username = os.getenv("AZURE_SQL_USERNAME")
-password = os.getenv("AZURE_SQL_PASSWORD")
+# Get Azure SQL driver from .env
 driver = os.getenv("AZURE_SQL_DRIVER")  # Should be 'ODBC Driver 18 for SQL Server'
 
 # Create connection
-def get_connection():
+def get_connection(server, database, username, password):
     conn = pyodbc.connect(
         f"DRIVER={{{driver}}};"
         f"SERVER={server};"
