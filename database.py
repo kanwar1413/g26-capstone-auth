@@ -11,7 +11,7 @@ driver = os.getenv("AZURE_SQL_DRIVER")  # Should be 'ODBC Driver 18 for SQL Serv
 # Create connection
 def get_connection(server, database, username, password):
     conn = pyodbc.connect(
-        f"DRIVER={{{driver}}};"
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
         f"SERVER={server};"
         f"DATABASE={database};"
         f"UID={username};"
