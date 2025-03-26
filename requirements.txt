@@ -8,4 +8,4 @@ azure-keyvault-secrets
 azure-keyvault-keys
 pydantic
 passlib
-jose
+python-jose[cryptography]
