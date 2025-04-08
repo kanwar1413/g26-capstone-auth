@@ -29,11 +29,9 @@ except Exception as e:
 
 app = FastAPI()
 
-# --- Add CORS Middleware ---
 origins = [
-    "http://localhost:5173",  # Your frontend development server
-    # Add any other origins if needed (e.g., your deployed frontend URL)
-    # "http://127.0.0.1:5173", # Sometimes needed too
+    "http://localhost:5173", 
+    "https://g26-capstone-front-end-dcdfabdfhkakegcq.canadacentral-01.azurewebsites.net/"
 ]
 
 app.add_middleware(
@@ -43,8 +41,6 @@ app.add_middleware(
     allow_methods=["*"],    # Allows all standard methods
     allow_headers=["*"],    # Allows all headers
 )
-# --- End CORS Middleware ---
-
 
 @app.get("/")
 def read_root():
