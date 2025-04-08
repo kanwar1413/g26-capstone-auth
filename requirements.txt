@@ -6,3 +6,6 @@ pytest
 azure-identity
 azure-keyvault-secrets
 azure-keyvault-keys
+pydantic
+passlib
+python-jose[cryptography]
