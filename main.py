@@ -110,11 +110,30 @@ def get_recipes():
                 "name": row[1],
                 "description": row[2],
                 "ingredients": row[3],
-                "instructions": row[4]
+                "instructions": row[4],
+                "difficulty": row[5]
             })
         return {"recipes": recipes}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving recipes: {str(e)}")
+    
+@app.get("/products")
+def get_products():
+    try:
+        cursor = sql_conn.cursor()
+        cursor.execute("SELECT * FROM Products")
+        rows = cursor.fetchall()
+
+        products = []
+        for row in rows:
+            products.append({
+                "ingredient_name": row[0],
+                "quantity": row[1]
+            })
+
+        return {"products": products}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving products: {str(e)}")
     
 @app.post("/register")
 def register(user: UserIn):
@@ -155,7 +174,7 @@ def login(user: LoginUser):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
 
-        return {"access_token": access_token, "token_type": "bearer"}
+        return {"message": "User loggedIn successfully", "access_token": access_token, "token_type": "bearer"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error logging in: {str(e)}")
