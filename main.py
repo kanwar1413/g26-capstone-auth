@@ -202,6 +202,29 @@ def test_secret():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving secret: {str(e)}")
 
+@app.post("/verify_token")
+def verify_token(token_data: dict):
+    try:
+        token = token_data.get("token")
+        if not token:
+            raise HTTPException(status_code=400, detail="Token is required")
+        
+        # Get secret key from Key Vault
+        secret_key = key_vault.get_secret_value("JWT-SECRET-KEY")
+        
+        # Verify token
+        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if not username:
+            return {"valid": False}
+            
+        return {"valid": True, "username": username}
+        
+    except JWTError:
+        return {"valid": False}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error verifying token: {str(e)}")
+
 # def main():
 #     import uvicorn
 #     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
