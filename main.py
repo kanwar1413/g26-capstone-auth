@@ -210,7 +210,8 @@ def verify_token(token_data: dict):
             raise HTTPException(status_code=400, detail="Token is required")
         
         # Get secret key from Key Vault
-        secret_key = key_vault.get_secret_value("JWT-SECRET-KEY")
+        # secret_key = key_vault.get_secret_value("JWT-SECRET-KEY")
+        secret_key = SECRET_KEY  # Use the same secret key as above
         
         # Verify token
         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
