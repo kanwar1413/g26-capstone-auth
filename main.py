@@ -1,6 +1,7 @@
 import os
 import sys
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from keyvault import CapstoneKeyVault
 from dotenv import load_dotenv
 from database import get_connection
@@ -27,6 +28,22 @@ except Exception as e:
 
 
 app = FastAPI()
+
+# --- Add CORS Middleware ---
+origins = [
+    "http://localhost:5173",  # Your frontend development server
+    # Add any other origins if needed (e.g., your deployed frontend URL)
+    # "http://127.0.0.1:5173", # Sometimes needed too
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True, # Important for cookies/auth headers
+    allow_methods=["*"],    # Allows all standard methods
+    allow_headers=["*"],    # Allows all headers
+)
+# --- End CORS Middleware ---
 
 
 @app.get("/")
