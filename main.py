@@ -52,7 +52,7 @@ class UserIn(BaseModel):
     first_name: str
     last_name: str
     username: str
-    password: str
+    password: str  # Pre-hashed password from front-end
     email: str  # Add email field
 class LoginUser(BaseModel):
     username: str
@@ -145,12 +145,9 @@ def register(user: UserIn):
         if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Username already exists.")
 
-        # Hash the password
-        hashed_password = get_password_hash(user.password)
-
-        # Insert new user into the Users table
+        # Insert new user into the Users table (password is already hashed from front-end)
         cursor.execute("INSERT INTO Users (first_name, last_name, username, password, email) VALUES (?, ?, ?, ?, ?)",
-                       user.first_name, user.last_name, user.username, hashed_password, user.email)
+                       user.first_name, user.last_name, user.username, user.password, user.email)
         sql_conn.commit()
 
         return {"message": "User registered successfully"}
