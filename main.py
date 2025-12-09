@@ -5,7 +5,6 @@ from keyvault import CapstoneKeyVault
 from dotenv import load_dotenv
 from database import get_connection
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
 import pyodbc
 from pydantic import BaseModel
 from datetime import timedelta
@@ -96,53 +95,14 @@ app.add_middleware(
 def read_root():
     return {"message": "Hello, World!"}
 
-# @app.get("/recipes")
-# def get_recipes():
-#     try:
-#         cursor = sql_conn.cursor()
-#         cursor.execute("SELECT * FROM Recipes WHERE username = ?", user.username)
-#         rows = cursor.fetchall()
-
-#         # Create a list of dictionaries for each recipe
-#         recipes = []
-#         for row in rows:
-#             recipes.append({
-#                 "id": row[0],
-#                 "name": row[1],
-#                 "description": row[2],
-#                 "ingredients": row[3],
-#                 "instructions": row[4],
-#                 "difficulty": row[5]
-#             })
-#         return {"recipes": recipes}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error retrieving recipes: {str(e)}")
-
 @app.get("/recipes")
-def get_recipes(request: Request):
+def get_recipes():
     try:
-        # 1. Read Authorization header
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            raise HTTPException(status_code=401, detail="Authorization header missing")
-
-        # 2. Extract token
-        if not auth_header.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Invalid authorization header format")
-
-        token = auth_header.split(" ")[1]
-
-        # 3. Decode token → get username
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-
-        # 4. Query recipes belonging to logged-in user
         cursor = sql_conn.cursor()
-        cursor.execute("SELECT * FROM Recipes WHERE username = ?", username)
+        cursor.execute("SELECT * FROM Recipes")
         rows = cursor.fetchall()
 
+        # Create a list of dictionaries for each recipe
         recipes = []
         for row in rows:
             recipes.append({
@@ -153,14 +113,9 @@ def get_recipes(request: Request):
                 "instructions": row[4],
                 "difficulty": row[5]
             })
-
         return {"recipes": recipes}
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving recipes: {str(e)}")
-
     
 @app.get("/products")
 def get_products():
