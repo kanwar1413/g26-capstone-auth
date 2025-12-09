@@ -121,34 +121,16 @@ def read_root():
 @app.get("/recipes")
 def get_recipes(request: Request):
     try:
-        # --- 1. Get Authorization header ---
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
-        token = auth_header.split(" ")[1]
-
-        # --- 2. Decode JWT token ---
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
+        username = auth_header.split(" ")[1]
 
         cursor = sql_conn.cursor()
-
-        # --- 3. Look up user_id (same as your working code elsewhere) ---
-        cursor.execute("SELECT id FROM Users WHERE username = ?", username)
-        user_row = cursor.fetchone()
-        if not user_row:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        user_id = user_row[0]
-
-        # --- 4. Query recipes using user_id ---
-        cursor.execute("SELECT * FROM Recipes WHERE user_id = ?", user_id)
+        cursor.execute("SELECT * FROM Recipes WHERE username = ?", username)
         rows = cursor.fetchall()
 
-        # --- 5. Format output ---
         recipes = []
         for row in rows:
             recipes.append({
@@ -162,8 +144,6 @@ def get_recipes(request: Request):
 
         return {"recipes": recipes}
 
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving recipes: {str(e)}")
 
