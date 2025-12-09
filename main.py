@@ -121,28 +121,34 @@ def read_root():
 @app.get("/recipes")
 def get_recipes(request: Request):
     try:
-        # 1. Read Authorization header
+        # --- 1. Get Authorization header ---
         auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            raise HTTPException(status_code=401, detail="Authorization header missing")
-
-        # 2. Extract token
-        if not auth_header.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Invalid authorization header format")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
         token = auth_header.split(" ")[1]
 
-        # 3. Decode token → get username
+        # --- 2. Decode JWT token ---
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
         if not username:
             raise HTTPException(status_code=401, detail="Invalid token payload")
 
-        # 4. Query recipes belonging to logged-in user
         cursor = sql_conn.cursor()
-        cursor.execute("SELECT * FROM Recipes WHERE username = ?", username)
+
+        # --- 3. Look up user_id (same as your working code elsewhere) ---
+        cursor.execute("SELECT id FROM Users WHERE username = ?", username)
+        user_row = cursor.fetchone()
+        if not user_row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_id = user_row[0]
+
+        # --- 4. Query recipes using user_id ---
+        cursor.execute("SELECT * FROM Recipes WHERE user_id = ?", user_id)
         rows = cursor.fetchall()
 
+        # --- 5. Format output ---
         recipes = []
         for row in rows:
             recipes.append({
@@ -160,6 +166,7 @@ def get_recipes(request: Request):
         raise HTTPException(status_code=401, detail="Invalid token")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving recipes: {str(e)}")
+
 
     
 @app.get("/products")
