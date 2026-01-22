@@ -1,7 +1,6 @@
 import os
 import sys
 from fastapi import FastAPI, HTTPException
-from keyvault import CapstoneKeyVault
 from dotenv import load_dotenv
 from database import get_connection
 from fastapi.middleware.cors import CORSMiddleware
@@ -60,16 +59,11 @@ class LoginUser(BaseModel):
 
 
 try:
-    # set up azure key vault
-    key_vault = CapstoneKeyVault(os.getenv("KEY_VAULT_URL"))
-    if not key_vault:
-        # this service relies on the key vault right now.
-        # so exits the app if the keyvault is not successfully set. 
-        raise Exception("Key Vault not made.")
     user = os.getenv("SQL_SERVER_USER")
     pwd = os.getenv("SQL_SERVER_PWD")
-    sql_conn = get_connection(key_vault.get_secret_value("SQL-SERVER-NAME"), 
-                              key_vault.get_secret_value("SQL-DB-NAME"), user, pwd)
+    url = os.getenv("SQL_SERVER_URL")
+    db_name = os.getenv("SQL_SERVER_DN_NAME")
+    sql_conn = get_connection(url, db_name, user, pwd)
 except Exception as e:
     print(f"Issue: {str(e)}")
     sys.exit(-1)
@@ -175,15 +169,6 @@ def login(user: LoginUser):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error logging in: {str(e)}")
-# Returns a test secret value that shows Azure Key Vault is connected to the Fast Api backend.
-@app.get("/test-secret")
-def test_secret():
-    try:
-        if key_vault is None:
-            raise Exception("Key Vault not initialized properly.")
-        return {"test-secret-value": f"{key_vault.get_secret_value('Test-Secret')}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving secret: {str(e)}")
 
 
 @app.get("/test-sql")
